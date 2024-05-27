@@ -1,4 +1,4 @@
-CREATE TABLE users (
+CREATE TABLE public.users (
     id VARCHAR(255) PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -7,13 +7,14 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE items (
+CREATE TABLE public.items (
     id VARCHAR(255) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
     starting_price DECIMAL(10, 2) NOT NULL,
     current_price DECIMAL(10, 2) DEFAULT 0.00,
     image_url VARCHAR(255),
+    user_id VARCHAR(255),
     end_time TIMESTAMP NOT NULL,
     created_at TIMESTAMP DEFAULT now()
 );
@@ -53,6 +54,3 @@ CREATE TABLE public.notifications
         NOT VALID
 );
 
-
-ALTER TABLE IF EXISTS public.items
-    ADD COLUMN user_id character varying;
