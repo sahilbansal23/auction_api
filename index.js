@@ -15,12 +15,17 @@ const limiter = rateLimit({
 
 const userRoute = require("./routes/userRoute");
 const itemRoute = require("./routes/itemRoute");
+const notificaitonRoute = require("./routes/notificationRoute");
+const logger = require("./utils/logger");
+
 
 app.use(json());
 app.use(limiter);
 
 app.use("/users", userRoute);
 app.use("/items", itemRoute);
+app.use("/notifications", notificaitonRoute);
+
 
 app.use("*", async (req, res) => {
   logger.error("Unknow URL coming endpoint");

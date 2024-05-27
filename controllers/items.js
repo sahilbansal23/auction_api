@@ -4,9 +4,10 @@ const itemQueries = require("../queries/itemQueries");
 const { ulid } = require("ulid");
 const { auctionauthvalidation } = require("../utils/auth");
 const jwt = require("jsonwebtoken");
-const { get } = require("../routes/userRoute");
-const { configDotenv } = require("dotenv");
-require("dotenv/config");
+require("dotenv").config();
+const WebSocket = require("ws");
+const { addnotification } = require("../utils/notification");
+const websocket_url = process.env.SOCKET_URL;
 
 const getAllItems = async (req, res) => {
   const client = await pool.connect();
@@ -73,7 +74,7 @@ const itemDetails = async (req, res) => {
     res.status(400).send({
       status: 400,
       msg: error.message,
-      Data: { user_id: id },
+      Data: {},
     });
   } finally {
     client.release();
@@ -213,11 +214,74 @@ const getbids = async (req, res) => {
     const item_id = req.params.itemId;
     await client.query("BEGIN");
 
-
-    const total_pages = Math.ceil(total_items / limit);
     const itemBids = await client.query(itemQueries.getitembids, [item_id]);
 
-  
+    await client.query("COMMIT");
+    res.status(200).send({
+      status: 200,
+      msg: "Bids Returned Successfully",
+      data: itemBids.rows,
+    });
+  } catch (error) {
+    await client.query("ROLLBACK");
+    logger.error(error);
+    res.status(400).send({
+      status: 400,
+      msg: error.message,
+      Data: req.body,
+    });
+  } finally {
+    client.release();
+  }
+};
+const addbid = async (req, res) => {
+  const client = await pool.connect();
+  try {
+    const auth = await auctionauthvalidation(req.headers, client);
+    const user_id = auth.user_id;
+    const item_id = req.params.itemId;
+    const content = req.body;
+    const bidding_price = content.bidding_price;
+
+    await client.query("BEGIN");
+
+    const item_details = await client.query(itemQueries.getitembyid, [item_id]);
+    const id = ulid();
+    const itemBids = await client.query(itemQueries.addbid, [
+      id,
+      item_id,
+      user_id,
+      bidding_price,
+    ]);
+
+    const message = `New bidding in item '${item_details.rows[0].name} of ₹'${bidding_price}'`;
+    await addnotification(message,item_id);
+
+    const ws = new WebSocket(websocket_url);
+
+    // Event listener for WebSocket connection open
+    ws.on("open", function open() {
+      console.log("Connected to WebSocket server");
+
+      // Send a message to the server
+      const send_message = {
+        type: "notificaiton",
+        message: message,
+        item_id: item_id,
+      };
+      ws.send(JSON.stringify(send_message));
+    });
+
+    // Event listener for receiving messages from the server
+    ws.on("message", function incoming(message) {
+      console.log("Received messag", message);
+    });
+
+    // Event listener for WebSocket connection close
+    ws.on("close", function close() {
+      console.log("Disconnected from WebSocket server");
+    });
+
     await client.query("COMMIT");
     res.status(200).send({
       status: 200,
@@ -242,5 +306,6 @@ module.exports = {
   addItem,
   editItem,
   deleteItem,
-  getbids
+  getbids,
+  addbid,
 };

@@ -80,7 +80,9 @@ bids.item_id = $1
 ORDER BY 
 bids.created_at DESC;
 `;
-
+const addbid = `INSERT INTO public.bids(
+	id, item_id, user_id, bid_amount)
+	VALUES ($1, $2, $3, $4)`;
 module.exports = {
   getitems,
   getitembyid,
@@ -88,5 +90,6 @@ module.exports = {
   updateItem,
   deleteItem,
   itemCount,
-  getitembids
+  getitembids,
+  addbid
 };

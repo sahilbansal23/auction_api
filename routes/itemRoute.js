@@ -19,7 +19,7 @@ router.post("/", upload.single('image'), itemController.addItem);
 router.put("/:id", itemController.editItem);
 router.delete("/:id", itemController.deleteItem);
 router.get("/:itemId/bids", itemController.getbids);
-router.post("/:itemId/bids", itemController.deleteItem);
+router.post("/:itemId/bids", itemController.addbid);
 
 
 module.exports = router;
