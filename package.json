@@ -1,7 +1,7 @@
 {
   "name": "auction_api",
   "version": "1.0.0",
-  "description": "",
+  "description": "action api",
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js"

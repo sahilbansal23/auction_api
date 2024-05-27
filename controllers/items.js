@@ -17,7 +17,7 @@ const getAllItems = async (req, res) => {
     const { limit, offset } = req.query;
     let active = req.query.active ? req.query.active : null;
     let word = req.query.word ? req.query.word : null;
-    console.log("defe",active);
+    console.log("defe", active);
     const page = (offset - 1) * limit;
     await client.query("BEGIN");
 
@@ -31,7 +31,7 @@ const getAllItems = async (req, res) => {
       getitems += ` WHERE `;
     }
     if (active != null && active != "") {
-      if (active == 'true') {
+      if (active == "true") {
         itemCount += `  end_time > NOW() `;
         getitems += `  end_time > NOW() `;
       } else {
@@ -276,6 +276,16 @@ const addbid = async (req, res) => {
     await client.query("BEGIN");
 
     const item_details = await client.query(itemQueries.getitembyid, [item_id]);
+
+    if (item_details.rowCount > 0) {
+      if (item_details.rows[0].current_price >= bidding_price) {
+        throw new Error(
+          `Can not bid  lower than ${item_details.rows[0].current_price}`
+        );
+      }
+    } else {
+      throw new Error("no item found ");
+    }
     const id = ulid();
     const itemBids = await client.query(itemQueries.addbid, [
       id,
@@ -283,7 +293,10 @@ const addbid = async (req, res) => {
       user_id,
       bidding_price,
     ]);
-
+    const update_current_price = await client.query(itemQueries.updatePrice, [
+      item_id,
+      bidding_price,
+    ]);
     const message = `New bidding in item '${item_details.rows[0].name} of ₹'${bidding_price}'`;
     await addnotification(message, item_id);
 
@@ -315,8 +328,8 @@ const addbid = async (req, res) => {
     await client.query("COMMIT");
     res.status(200).send({
       status: 200,
-      msg: "Bids Returned Successfully",
-      data: itemBids.rows,
+      msg: "Bid created Successfully",
+      data: req.body,
     });
   } catch (error) {
     await client.query("ROLLBACK");

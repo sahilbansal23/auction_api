@@ -83,6 +83,11 @@ bids.created_at DESC;
 const addbid = `INSERT INTO public.bids(
 	id, item_id, user_id, bid_amount)
 	VALUES ($1, $2, $3, $4)`;
+
+const updatePrice = `UPDATE items
+SET 
+    current_price = COALESCE($2, current_price) 
+WHERE  id = $1`;
 module.exports = {
   getitems,
   getitembyid,
@@ -91,5 +96,6 @@ module.exports = {
   deleteItem,
   itemCount,
   getitembids,
-  addbid
+  addbid,
+  updatePrice,
 };

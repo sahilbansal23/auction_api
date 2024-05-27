@@ -136,7 +136,7 @@ const editpassword = async (req, res) => {
     const get_old_pass = await client.query(userController.getUserFromUserid, [
       user_id,
     ]);
-    console.log(get_old_pass);
+    // console.log(get_old_pass);
     if (get_old_pass.rows[0]?.password == old_password) {
       const update_password = await client.query(
         userController.update_password,
