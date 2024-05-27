@@ -15,14 +15,44 @@ const getAllItems = async (req, res) => {
     const auth = await auctionauthvalidation(req.headers, client);
     const user_id = auth.user_id;
     const { limit, offset } = req.query;
+    let active = req.query.active ? req.query.active : null;
+    let word = req.query.word ? req.query.word : null;
+    console.log("defe",active);
     const page = (offset - 1) * limit;
     await client.query("BEGIN");
 
-    const cout_items = await client.query(itemQueries.itemCount);
+    let itemCount = `SELECT COALESCE(COUNT(*), 0) as item_count FROM items`;
+    let getitems = `SELECT id,name,description,starting_price,current_price,image_url,
+    end_time,created_at,user_id FROM items 
+    `;
+
+    if (active != null || word != null) {
+      itemCount += ` WHERE `;
+      getitems += ` WHERE `;
+    }
+    if (active != null && active != "") {
+      if (active == 'true') {
+        itemCount += `  end_time > NOW() `;
+        getitems += `  end_time > NOW() `;
+      } else {
+        itemCount += `  end_time < NOW() `;
+        getitems += `  end_time < NOW() `;
+      }
+      if (word != null && word != "") {
+        itemCount += " AND ";
+        getitems += " AND ";
+      }
+    }
+    if (word != null && word != "") {
+      itemCount += `  name ILIKE  '${word}%' `;
+      getitems += `  name ILIKE  '${word}%' `;
+    }
+    getitems += ` ORDER BY created_at DESC LIMIT $1 OFFSET $2 `;
+    const cout_items = await client.query(itemCount);
     const total_items = cout_items.rows[0].item_count;
 
     const total_pages = Math.ceil(total_items / limit);
-    const itemList = await client.query(itemQueries.getitems, [limit, page]);
+    const itemList = await client.query(getitems, [limit, page]);
 
     // if (itemList.rowCount > 0) {
     //   logger.info("user added successfully");
@@ -255,7 +285,7 @@ const addbid = async (req, res) => {
     ]);
 
     const message = `New bidding in item '${item_details.rows[0].name} of ₹'${bidding_price}'`;
-    await addnotification(message,item_id);
+    await addnotification(message, item_id);
 
     const ws = new WebSocket(websocket_url);
 
