@@ -62,25 +62,6 @@ JWT_SECRET = [YOUR JWT SECRET KEY]
 SOCKET_URL = [WEBSOCKET URL]
 ```
 
-- STEP 3
-create environment file
-```bash
-touch .env
-vi .env 
-
-#add variable 
-
-DBUSER= [YOUR DATABASE USER]
-DBHOST = [YOUR HOST URL]
-DB = [YOUR DATABASE NAME]
-DBPASSWORD =[YOUR DATABASE PASSWORD]
-DBPORT = [YOUR DATABASE PORT]
-max: 25,
-PORT = [YOUR SERVER PORT]
-JWT_SECRET = [YOUR JWT SECRET KEY]
-SOCKET_URL = [WEBSOCKET URL]
-```
-
 - STEP 4
 Crate your database
 ```bash
