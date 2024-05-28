@@ -9,6 +9,7 @@ RESTful API for a real-time bidding platform using Node.js, Express, Websocket a
 ## Tech Stack
 
 **Server:** Node, Express
+
 **Database:** postgreSQL
 
 
