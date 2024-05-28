@@ -126,7 +126,7 @@ CREATE TABLE public.notifications
 
 ## Screenshot
  ERD Diagram
-![App Screenshot](https://drive.google.com/file/d/1i-BhJd2o6xAodEYpYJT3GFJ2AYs9HSAu/view?usp=sharing)
+[App Screenshot](https://drive.google.com/file/d/1i-BhJd2o6xAodEYpYJT3GFJ2AYs9HSAu/view?usp=sharing)
 
 
 - STEP 5
